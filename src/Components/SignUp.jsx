@@ -3,27 +3,44 @@ import { AuthContext } from "../Providers/AuthProvider";
 
 
 const SignUp = () => {
-    const {createUser} = useContext(AuthContext);
+    const { createUser } = useContext(AuthContext);
 
-    const handleSignUp = e =>{
+    const handleSignUp = e => {
         e.preventDefault();
         const form = e.target;
         const email = form.email.value;
         const password = form.password.value;
-        console.log(email,password);
-        createUser(email,password)
-        .then(result =>{
-            console.log(result.user);
-            //new user has beeen created
-        })
-        .catch(error =>{
-            console.error(error);
-        })
+        console.log(email, password);
+        createUser(email, password)
+            .then(result => {
+                console.log(result.user);
+                //new user has beeen created
+                const createdAt = result.user?.metadata?.creationTime;
+                const user = { email,createdAt };
+                fetch('http://localhost:5000/user', {
+                    method: 'POST',
+                    headers: {
+                        'content-type': 'application/json'
+                    },
+                    body: JSON.stringify(user)
+                })
+
+                    .then(res => res.json())
+                    .then(data => {
+                        if(data.insertedId){
+                            console.log('user added to the database');
+                        }
+                    })
+            })
+
+            .catch(error => {
+                console.error(error);
+            })
     }
 
     return (
         <div className="hero bg-base-200 min-h-screen">
-            <div className="hero-content flex-col lg:flex-row-reverse">
+            <div className="hero-content flex-col">
                 <div className="text-center lg:text-left">
                     <h1 className="text-5xl font-bold">Sign Up now!</h1>
                 </div>
